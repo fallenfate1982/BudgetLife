@@ -1,0 +1,38 @@
+{
+  "name": "budgetlife",
+  "version": "1.0.0",
+  "description": "Simple Budgeting app ",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fallenfate1982/BudgetLife.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fallenfate1982/BudgetLife/issues"
+  },
+  "homepage": "https://github.com/fallenfate1982/BudgetLife#readme",
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-react-html-attrs": "^2.1.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "css-loader": "^3.2.0",
+    "json-loader": "^0.5.7",
+    "react-ga": "^2.6.0",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "webpack": "^4.39.3",
+    "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  }
+}
