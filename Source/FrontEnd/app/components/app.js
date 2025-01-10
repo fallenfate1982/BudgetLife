@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { AuthProvider } from './context/AuthContext';
 
 // Components
 import Login from './auth/Login';
@@ -39,12 +40,14 @@ export default class App extends Component {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Switch>
-            <Route exact path="/" render={() => <Redirect to="/login" />} />
-            <Route path="/login" component={Login} />
-            <Route path="/register" component={Register} />
-            <Route path="/dashboard" component={Dashboard} />
-          </Switch>
+          <AuthProvider>
+            <Switch>
+              <Route exact path="/" render={() => <Redirect to="/login" />} />
+              <Route path="/login" component={Login} />
+              <Route path="/register" component={Register} />
+              <Route path="/dashboard" component={Dashboard} />
+            </Switch>
+          </AuthProvider>
         </Router>
       </ThemeProvider>
     );

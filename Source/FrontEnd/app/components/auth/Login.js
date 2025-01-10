@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Redirect } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -7,8 +7,12 @@ import {
   Button,
   Typography,
   Link,
-  makeStyles
+  makeStyles,
+  CircularProgress,
+  Snackbar
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import { useAuth } from '../../context/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -42,10 +46,25 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const { login, user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement login logic in step 007
+    setLoading(true);
+    setError('');
+    
+    const result = await login(email, password);
+    if (!result.success) {
+      setError(result.error);
+    }
+    setLoading(false);
   };
+
+  if (user) {
+    return <Redirect to="/dashboard" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs" className={classes.container}>
@@ -86,9 +105,15 @@ const Login = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={loading}
           >
-            Sign In
+            {loading ? <CircularProgress size={24} /> : 'Sign In'}
           </Button>
+          <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+            <Alert onClose={() => setError('')} severity="error">
+              {error}
+            </Alert>
+          </Snackbar>
           <Typography align="center" className={classes.link}>
             Don't have an account?{' '}
             <Link component={RouterLink} to="/register">

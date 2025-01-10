@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Redirect } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -7,8 +7,12 @@ import {
   Button,
   Typography,
   Link,
-  makeStyles
+  makeStyles,
+  CircularProgress,
+  Snackbar
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import { useAuth } from '../../context/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,10 +48,31 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const { register, user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement registration logic in step 007
+    setLoading(true);
+    setError('');
+    
+    const result = await register({
+      email,
+      password,
+      firstName,
+      lastName
+    });
+    
+    if (!result.success) {
+      setError(result.error);
+    }
+    setLoading(false);
   };
+
+  if (user) {
+    return <Redirect to="/dashboard" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs" className={classes.container}>
@@ -110,9 +135,15 @@ const Register = () => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={loading}
           >
-            Sign Up
+            {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>
+          <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+            <Alert onClose={() => setError('')} severity="error">
+              {error}
+            </Alert>
+          </Snackbar>
           <Typography align="center" className={classes.link}>
             Already have an account?{' '}
             <Link component={RouterLink} to="/login">

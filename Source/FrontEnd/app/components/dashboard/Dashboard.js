@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
   Paper,
   Typography,
-  makeStyles
+  makeStyles,
+  CircularProgress,
+  Button,
+  IconButton,
+  Snackbar
 } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import { ExitToApp as LogoutIcon } from '@material-ui/icons';
+import { useAuth } from '../../context/AuthContext';
+import { budgets, transactions } from '../../services/api';
 import {
   BarChart,
   Bar,
@@ -20,6 +28,15 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     padding: theme.spacing(3),
+  },
+  header: {
+    marginBottom: theme.spacing(4),
+  },
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
   },
   paper: {
     padding: theme.spacing(2),
@@ -36,21 +53,86 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// Placeholder data - will be replaced with real data in step 007
-const data = [
-  { name: 'Jan', income: 4000, expenses: 2400 },
-  { name: 'Feb', income: 3000, expenses: 1398 },
-  { name: 'Mar', income: 2000, expenses: 9800 },
-  { name: 'Apr', income: 2780, expenses: 3908 },
-  { name: 'May', income: 1890, expenses: 4800 },
-  { name: 'Jun', income: 2390, expenses: 3800 },
-];
-
 const Dashboard = () => {
   const classes = useStyles();
+  const { logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [budgetData, setBudgetData] = useState([]);
+  const [transactionData, setTransactionData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [budgetsResponse, transactionsResponse] = await Promise.all([
+          budgets.getAll(),
+          transactions.getAll()
+        ]);
+        
+        setBudgetData(budgetsResponse.data);
+        setTransactionData(transactionsResponse.data);
+      } catch (err) {
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container className={classes.loadingContainer}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // Process transaction data for chart
+  const chartData = transactionData.reduce((acc, transaction) => {
+    const month = new Date(transaction.date).toLocaleString('default', { month: 'short' });
+    const existingMonth = acc.find(item => item.name === month);
+    
+    if (existingMonth) {
+      if (transaction.isExpense) {
+        existingMonth.expenses += transaction.amount;
+      } else {
+        existingMonth.income += transaction.amount;
+      }
+    } else {
+      acc.push({
+        name: month,
+        income: transaction.isExpense ? 0 : transaction.amount,
+        expenses: transaction.isExpense ? transaction.amount : 0
+      });
+    }
+    return acc;
+  }, []).sort((a, b) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months.indexOf(a.name) - months.indexOf(b.name);
+  });
+
+  if (loading) {
+    return (
+      <Container className={classes.loadingContainer}>
+        <CircularProgress />
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" className={classes.root}>
+      <Grid container spacing={2} alignItems="center" className={classes.header}>
+        <Grid item xs>
+          <Typography variant="h4">Dashboard</Typography>
+        </Grid>
+        <Grid item>
+          <IconButton onClick={logout} title="Logout">
+            <LogoutIcon />
+          </IconButton>
+        </Grid>
+      </Grid>
       <Grid container spacing={3}>
         {/* Summary Cards */}
         <Grid item xs={12} md={4}>
@@ -111,6 +193,11 @@ const Dashboard = () => {
           </Paper>
         </Grid>
       </Grid>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
+        <Alert onClose={() => setError('')} severity="error">
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
