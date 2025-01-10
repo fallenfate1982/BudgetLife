@@ -98,6 +98,7 @@ namespace Services
             {
                 app.UseHsts();
             }
+            app.UseRouting();
             app.UseCors("AllowOrigin");
             app.UseHttpsRedirection();
             app.UseAuthentication();
