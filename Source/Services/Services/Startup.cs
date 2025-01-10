@@ -32,7 +32,7 @@ namespace Services
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
 
             // Add DbContext with MySQL
             var connectionString = $"server={Environment.GetEnvironmentVariable("DB_HOST")};" +
@@ -101,7 +101,12 @@ namespace Services
             app.UseCors("AllowOrigin");
             app.UseHttpsRedirection();
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
+            
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
