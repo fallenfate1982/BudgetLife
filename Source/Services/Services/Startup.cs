@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Services.Data;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Services
 {
@@ -20,6 +23,7 @@ namespace Services
 
         public Startup(IConfiguration configuration)
         {
+            DotNetEnv.Env.Load();
             Configuration = configuration;
         }
 
@@ -30,9 +34,22 @@ namespace Services
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            // Add DbContext with in-memory database
+            // Add DbContext with MySQL
+            var connectionString = $"server={Environment.GetEnvironmentVariable("DB_HOST")};" +
+                                 $"port={Environment.GetEnvironmentVariable("DB_PORT")};" +
+                                 $"database={Environment.GetEnvironmentVariable("DB_NAME")};" +
+                                 $"user={Environment.GetEnvironmentVariable("DB_USER")};" +
+                                 $"password={Environment.GetEnvironmentVariable("DB_PASSWORD")}";
             services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("BudgetLifeDB")
+                options.UseMySql(
+                    connectionString,
+                    ServerVersion.AutoDetect(connectionString),
+                    mySqlOptions => mySqlOptions
+                        .EnableRetryOnFailure(
+                            maxRetryCount: 10,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null)
+                )
             );
 
             // Configure JWT authentication
@@ -62,7 +79,7 @@ namespace Services
             {
                 c.AddPolicy("AllowOrigin", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.WithOrigins("http://localhost:3000")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
@@ -71,7 +88,7 @@ namespace Services
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
