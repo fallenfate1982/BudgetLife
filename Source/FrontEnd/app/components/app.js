@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { AuthProvider } from '../context/AuthContext';
+import PrivateRoute from './auth/PrivateRoute';
 
 // Components
 import Login from './auth/Login';
@@ -45,7 +46,7 @@ export default class App extends Component {
               <Route exact path="/" render={() => <Redirect to="/login" />} />
               <Route path="/login" component={Login} />
               <Route path="/register" component={Register} />
-              <Route path="/dashboard" component={Dashboard} />
+              <PrivateRoute path="/dashboard" component={Dashboard} />
             </Switch>
           </AuthProvider>
         </Router>
