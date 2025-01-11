@@ -168,7 +168,7 @@ const Dashboard = () => {
             </Typography>
             <div className={classes.chart}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
+                <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
