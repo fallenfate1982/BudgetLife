@@ -25,6 +25,14 @@ module.exports = {
         static: {
             directory: __dirname
         },
-        hot: true
+        hot: true,
+        historyApiFallback: true,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:60960',
+                secure: false,
+                changeOrigin: true
+            }
+        }
     }
 };
