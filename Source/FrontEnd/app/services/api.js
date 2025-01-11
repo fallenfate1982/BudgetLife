@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:60960/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://user:d7d2e7387e5d9476a91c976d476b3722@front-end-crash-app-tunnel-fkyd9j6w.devinapps.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -8,16 +8,44 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
+  validateStatus: function (status) {
+    return status >= 200 && status < 500; // Handle all responses to prevent uncaught errors
+  },
 });
 
 // Add token to requests if it exists
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // Server responded with error status
+      console.error('Response error:', error.response.data);
+    } else if (error.request) {
+      // Request made but no response
+      console.error('Network error:', error.request);
+    } else {
+      // Error in request configuration
+      console.error('Request config error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API calls
 export const auth = {
