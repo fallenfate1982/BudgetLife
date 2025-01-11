@@ -1,9 +1,11 @@
 //webpack.config.js
 
 module.exports = {
+    mode: 'development',
     entry: './app/main.js',
     output: {
-        filename: './bundle.js'
+        filename: './bundle.js',
+        publicPath: '/'
     },
     module: {
         rules: [
@@ -14,11 +16,15 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ['css-loader'],
-              }
+                use: ['style-loader', 'css-loader'],
+            }
         ]
     },
     devServer: {
-        port: 3000
+        port: 3000,
+        static: {
+            directory: __dirname
+        },
+        hot: true
     }
 };
