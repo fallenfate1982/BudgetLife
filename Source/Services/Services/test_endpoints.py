@@ -2,11 +2,11 @@ import requests
 import json
 import time
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "http://localhost:60960/api"
 
 def test_registration():
     print("\nTesting Registration...")
-    url = f"{BASE_URL}/api/Auth/register"
+    url = f"{BASE_URL}/Auth/register"
     data = {
         "email": f"test{int(time.time())}@example.com",
         "password": "Test123!",
@@ -20,7 +20,7 @@ def test_registration():
 
 def test_login(credentials):
     print("\nTesting Login...")
-    url = f"{BASE_URL}/api/Auth/login"
+    url = f"{BASE_URL}/Auth/login"
     data = {
         "email": credentials["email"],
         "password": credentials["password"]
@@ -35,7 +35,7 @@ def test_login(credentials):
 
 def test_create_budget(token):
     print("\nTesting Budget Creation...")
-    url = f"{BASE_URL}/api/Budget"
+    url = f"{BASE_URL}/Budget"
     headers = {"Authorization": f"Bearer {token}"}
     data = {
         "name": "Test Budget",
@@ -50,7 +50,7 @@ def test_create_budget(token):
 
 def test_get_budgets(token):
     print("\nTesting Get Budgets...")
-    url = f"{BASE_URL}/api/Budget"
+    url = f"{BASE_URL}/Budget"
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
     print(f"Status: {response.status_code}")

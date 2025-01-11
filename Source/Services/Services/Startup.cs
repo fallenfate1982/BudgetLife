@@ -93,13 +93,15 @@ namespace Services
             {
                 app.UseHsts();
             }
-            app.UseRouting();
-            app.UseCors("AllowOrigin");
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
             
-            app.UseEndpoints(endpoints =>
+            // Order matters for middleware pipeline
+            app.UseRouting();             // First: Endpoint routing
+            app.UseHttpsRedirection();     // Then: HTTPS redirection
+            app.UseCors("AllowOrigin");    // Then: CORS
+            app.UseAuthentication();        // Then: Authentication
+            app.UseAuthorization();         // Then: Authorization
+            
+            app.UseEndpoints(endpoints =>  // Finally: Endpoint execution
             {
                 endpoints.MapControllers();
             });
