@@ -74,10 +74,11 @@ namespace Services
             {
                 c.AddPolicy("AllowOrigin", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
+                    policy.SetIsOriginAllowed(_ => true)
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials();
+                          .AllowCredentials()
+                          .WithExposedHeaders("WWW-Authenticate");
                 });
             });
         }
