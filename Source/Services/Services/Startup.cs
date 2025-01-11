@@ -19,8 +19,6 @@ namespace Services
 {
     public class Startup
     {
-        public const string AppS3BucketKey = "AppS3Bucket";
-
         public Startup(IConfiguration configuration)
         {
             DotNetEnv.Env.Load();
@@ -71,9 +69,6 @@ namespace Services
                     ValidateAudience = false
                 };
             });
-
-            // Add S3 to the ASP.NET Core dependency injection framework.
-            services.AddAWSService<Amazon.S3.IAmazonS3>();
 
             services.AddCors(c =>
             {
