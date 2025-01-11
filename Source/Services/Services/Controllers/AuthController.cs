@@ -78,5 +78,23 @@ namespace Services.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            var envVars = new
+            {
+                DbHost = Environment.GetEnvironmentVariable("DB_HOST"),
+                DbPort = Environment.GetEnvironmentVariable("DB_PORT"),
+                DbName = Environment.GetEnvironmentVariable("DB_NAME"),
+                DbUser = Environment.GetEnvironmentVariable("DB_USER"),
+                DbPassword = "***" // Don't expose the actual password
+            };
+
+            return Ok(new { 
+                message = "Auth controller is running",
+                environment = envVars
+            });
+        }
     }
 }
