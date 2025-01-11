@@ -1,17 +1,18 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://user:d7d2e7387e5d9476a91c976d476b3722@front-end-crash-app-tunnel-fkyd9j6w.devinapps.com/api';
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
   timeout: 10000,
   validateStatus: function (status) {
     return status >= 200 && status < 500; // Handle all responses to prevent uncaught errors
   },
+  withCredentials: true
 });
 
 // Add token to requests if it exists
