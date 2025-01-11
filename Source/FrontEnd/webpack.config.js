@@ -1,6 +1,7 @@
 //webpack.config.js
 
 module.exports = {
+    mode: 'development',
     entry: './app/main.js',
     output: {
         filename: './bundle.js',
@@ -15,7 +16,7 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ['css-loader'],
+                use: ['style-loader', 'css-loader'],
             }
         ]
     },
