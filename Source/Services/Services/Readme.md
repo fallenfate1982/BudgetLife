@@ -1,74 +1,106 @@
-# ASP.NET Core Web API Serverless Application
+# BudgetLife Backend Service
 
-This project shows how to run an ASP.NET Core Web API project as an AWS Lambda exposed through Amazon API Gateway. The NuGet package [Amazon.Lambda.AspNetCoreServer](https://www.nuget.org/packages/Amazon.Lambda.AspNetCoreServer) contains a Lambda function that is used to translate requests from API Gateway into the ASP.NET Core framework and then the responses from ASP.NET Core back to API Gateway.
+A .NET 7.0 Web API service providing authentication, budget management, and transaction tracking functionality.
 
-The project starts with two Web API controllers. The first is the example ValuesController that is created by default for new ASP.NET Core Web API projects. The second is S3ProxyController which uses the AWS SDK for .NET to proxy requests for an Amazon S3 bucket.
+## Features
+- JWT-based authentication system
+- MySQL database integration
+- RESTful API endpoints for budgets and transactions
+- Comprehensive test suite
 
+## Prerequisites
+- .NET SDK 7.0
+- MySQL Server
+- Python 3.x (for running test scripts)
 
-### Configuring AWS SDK for .NET ###
+## Environment Configuration
 
-To integrate the AWS SDK for .NET with the dependency injection system built into ASP.NET Core the NuGet package [AWSSDK.Extensions.NETCore.Setup](https://www.nuget.org/packages/AWSSDK.Extensions.NETCore.Setup/) is referenced. In the Startup.cs file the Amazon S3 client is added to the dependency injection framework. The S3ProxyController will get its S3 service client from there.
+The application requires the following environment variables to be set:
 
-```csharp
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddMvc();
-
-    // Add S3 to the ASP.NET Core dependency injection framework.
-    services.AddAWSService<Amazon.S3.IAmazonS3>();
-}
+```bash
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=BudgetLifeDB
+DB_USER=budgetlife_user
+DB_PASSWORD=your_password_here
 ```
 
-### Configuring for Application Load Balancer ###
+Create a `.env` file in the project root with these variables or set them in your environment.
 
-To configure this project to handle requests from an Application Load Balancer instead of API Gateway change
-the base class of `LambdaEntryPoint` from `Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction` to 
-`Amazon.Lambda.AspNetCoreServer.ApplicationLoadBalancerFunction`.
+## Database Setup
 
-### Project Files ###
+The application uses MySQL for data storage. The connection string is constructed using the environment variables above. Make sure your MySQL server is running and accessible with the configured credentials.
 
-* serverless.template - an AWS CloudFormation Serverless Application Model template file for declaring your Serverless functions and other AWS resources
-* aws-lambda-tools-defaults.json - default argument settings for use with Visual Studio and command line deployment tools for AWS
-* LambdaEntryPoint.cs - class that derives from **Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction**. The code in 
-this file bootstraps the ASP.NET Core hosting framework. The Lambda function is defined in the base class.
-Change the base class to **Amazon.Lambda.AspNetCoreServer.ApplicationLoadBalancerFunction** when using an 
-Application Load Balancer.
-* LocalEntryPoint.cs - for local development this contains the executable Main function which bootstraps the ASP.NET Core hosting framework with Kestrel, as for typical ASP.NET Core applications.
-* Startup.cs - usual ASP.NET Core Startup class used to configure the services ASP.NET Core will use.
-* web.config - used for local development.
-* Controllers\S3ProxyController - Web API controller for proxying an S3 bucket
-* Controllers\ValuesController - example Web API controller
+### Database Migrations
+The application uses Entity Framework Core migrations. To update your database:
 
-You may also have a test project depending on the options selected.
-
-## Here are some steps to follow from Visual Studio:
-
-To deploy your Serverless application, right click the project in Solution Explorer and select *Publish to AWS Lambda*.
-
-To view your deployed application open the Stack View window by double-clicking the stack name shown beneath the AWS CloudFormation node in the AWS Explorer tree. The Stack View also displays the root URL to your published application.
-
-## Here are some steps to follow to get started from the command line:
-
-Once you have edited your template and code you can deploy your application using the [Amazon.Lambda.Tools Global Tool](https://github.com/aws/aws-extensions-for-dotnet-cli#aws-lambda-amazonlambdatools) from the command line.
-
-Install Amazon.Lambda.Tools Global Tools if not already installed.
-```
-    dotnet tool install -g Amazon.Lambda.Tools
+```bash
+dotnet ef database update
 ```
 
-If already installed check if new version is available.
-```
-    dotnet tool update -g Amazon.Lambda.Tools
+## Development Setup
+
+1. Restore dependencies:
+```bash
+dotnet restore
 ```
 
-Execute unit tests
-```
-    cd "Services/test/Services.Tests"
-    dotnet test
+2. Run the application:
+```bash
+dotnet run --urls="http://localhost:60960"
 ```
 
-Deploy application
+The API will be available at `http://localhost:60960`
+
+## API Testing
+
+### Using test_endpoints.py
+A Python script is provided to test the main API endpoints:
+
+```bash
+cd Source/Services/Services
+python3 test_endpoints.py
 ```
-    cd "Services/src/Services"
-    dotnet lambda deploy-serverless
-```
+
+This script tests:
+- User registration
+- Authentication
+- Budget creation and retrieval
+
+### Manual API Testing
+You can use the following test credentials:
+- Email: test@example.com
+- Password: Test123!
+
+## Project Structure
+
+### Key Components
+- `Controllers/` - API endpoint implementations
+  - `AuthController.cs` - Authentication endpoints
+  - `BudgetController.cs` - Budget management
+  - `TransactionController.cs` - Transaction handling
+- `Models/` - Data models and DTOs
+- `Data/` - Database context and configurations
+- `Migrations/` - Database migration files
+
+## API Documentation
+
+### Authentication Endpoints
+- POST `/api/Auth/register` - Register new user
+- POST `/api/Auth/login` - Authenticate user
+- GET `/api/Auth/ping` - Health check endpoint
+
+### Budget Endpoints
+- GET `/api/Budget` - List all budgets
+- POST `/api/Budget` - Create new budget
+- GET `/api/Budget/{id}` - Get specific budget
+
+### Transaction Endpoints
+- GET `/api/Transaction` - List all transactions
+- POST `/api/Transaction` - Create new transaction
+- GET `/api/Transaction/budget/{budgetId}` - Get transactions for budget
+
+## Development Notes
+- The application uses JWT tokens with a 7-day expiration
+- CORS is configured to allow requests from the frontend application
+- Swagger documentation is available at `/swagger` when running in Development mode
